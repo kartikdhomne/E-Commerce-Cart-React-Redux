@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   removeFromCart,
@@ -6,11 +6,11 @@ import {
   decreaseQuantity,
   clearCart,
 } from "../features/cartSlice";
+import { Button } from "@/components/ui/button";
 
 function Cart() {
   const cartItems = useSelector((state) => state.cart.cartItems);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const total = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -21,7 +21,14 @@ function Cart() {
     <div>
       <h2>🛒 Your Cart</h2>
       {cartItems.length === 0 ? (
-        <p>Cart is empty</p>
+        <>
+          <p>Cart is empty</p>
+          <div>
+            <Button>
+              <Link to="/">Return to Homepage</Link>
+            </Button>
+          </div>
+        </>
       ) : (
         <>
           {cartItems.map((item) => (
@@ -43,7 +50,6 @@ function Cart() {
           ))}
           <h3>Total: 💲{total}</h3>
           <button onClick={() => dispatch(clearCart())}>Clear Cart</button>
-          <button onClick={() => navigate("/checkout")}>Checkout</button>
         </>
       )}
     </div>
