@@ -15,44 +15,36 @@ function Navbar() {
   };
 
   return (
-    <nav className="w-full flex items-center justify-between bg-white text-black px-6 py-3 shadow-md">
+    <nav className="fixed z-10 w-full flex items-center justify-between bg-white text-black px-6 py-3 shadow-md">
       {/* Logo */}
-      <div className="flex items-center gap-2">
+      <Link href="/" className="flex items-center gap-2">
         <img src="/logo.svg" alt="Logo" className="" />
-        {/* <h1 className="text-xl font-bold">ShopKart</h1> */}
-      </div>
+      </Link>
 
-      {/* Search Bar */}
       <form onSubmit={handleSearch} className="flex flex-1 mx-6 max-w-xl">
-        <input
-          type="text"
-          placeholder="Search for products, brands and more"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-[750px] flex-1 px-4 py-2 rounded-l-md text-black focus:outline-none bg-[#f0f5ff]"
-        />
-        <button
-          type="submit"
-          className="bg-yellow-400 px-4 py-2 rounded-r-md font-semibold hover:bg-yellow-500 transition"
-        >
-          🔍
-        </button>
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder="Search for products, brands and more"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 pr-10 rounded-md text-black focus:outline-none bg-[#f0f5ff]"
+          />
+          <button
+            type="submit"
+            className="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 text-xl"
+          >
+            🔍
+          </button>
+        </div>
       </form>
 
       {/* Links */}
       <div className="flex gap-6 items-center">
-        <Link to="/" className="hover:underline">
-          🏠 Home
-        </Link>
-        <Link to="/products" className="hover:underline">
-          🛍 Products
-        </Link>
-        <Link to="/profile" className="hover:underline">
-          👤 Profile
-        </Link>
-        <Link to="/cart" className="hover:underline">
-          🛒 Cart ({cartCount})
-        </Link>
+        <Link to="/">Home</Link>
+        <Link to="/products">Products</Link>
+        <Link to="/profile">Login</Link>
+        <Link to="/cart">🛒 Cart ({cartCount})</Link>
       </div>
     </nav>
   );

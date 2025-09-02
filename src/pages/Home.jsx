@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
+import Navbar from "../components/Navbar";
+import Hero from "../components/Hero";
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -11,17 +13,16 @@ function Home() {
   }, []);
 
   return (
-    <div className="grid">
-      <div className="">
-        <img
-          src="/Hero.webp"
-          alt=""
-          className="object-contain h-[700px] w-[1400px]"
-        />
+    <div className="flex flex-col items-center">
+      <Navbar />
+      <Hero />
+
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 max-w-7xl w-full">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
     </div>
   );
 }
