@@ -18,7 +18,7 @@ function Navbar() {
     <nav className="fixed z-10 w-full flex items-center justify-between bg-white text-black px-6 py-3 shadow-md">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
-        <img src="/logo.svg" alt="Logo" className="" />
+        <img src="/logo.webp" alt="Logo" className="" />
       </Link>
 
       <form onSubmit={handleSearch} className="flex flex-1 mx-6 max-w-xl">
