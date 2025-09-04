@@ -5,8 +5,9 @@ import {
   increaseQuantity,
   decreaseQuantity,
   clearCart,
-} from "../features/cartSlice";
+} from "../features/cart/cartSlice";
 import { useState } from "react";
+import { Button } from "../components/ui/button";
 
 function Cart() {
   const cartItems = useSelector((state) => state.cart.cartItems);
@@ -16,6 +17,9 @@ function Cart() {
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState("");
   const [discount, setDiscount] = useState(0);
+
+  // Conversion rate USD → INR
+  const USD_TO_INR = 88;
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -29,28 +33,59 @@ function Cart() {
 
   const applyPromo = () => {
     const promos = {
-      SAVE10: { discount: 0.1, message: "10% discount applied!" },
-      WELCOME20: { discount: 0.2, message: "20% discount applied!" },
+      SAVE10: {
+        discount: 0.1,
+        message: "10% discount applied!",
+        minAmount: 399,
+      },
+      SAVE20: {
+        discount: 0.2,
+        message: "20% discount applied!",
+        minAmount: 799,
+      },
+      WELCOME20: {
+        discount: 0.2,
+        message: "Welcome offer: 20% discount applied!",
+        minAmount: 499,
+        newUser: true,
+      },
       FREESHIP: {
         discount: 0,
         message: "Free shipping applied!",
         freeShip: true,
+        minAmount: 999,
       },
     };
-    const promo = promos[promoCode.toUpperCase()];
+
+    const code = promoCode.toUpperCase();
+    const promo = promos[code];
+
     if (!promo) {
       setPromoMessage("Invalid promo code");
       setDiscount(0);
       return;
     }
+
+    if (subtotal * USD_TO_INR < promo.minAmount) {
+      setPromoMessage(`Minimum order of ₹${promo.minAmount} required`);
+      setDiscount(0);
+      return;
+    }
+
     setPromoMessage(promo.message);
     if (promo.discount) {
       setDiscount(subtotal * promo.discount);
+    } else {
+      setDiscount(0);
     }
+
     if (promo.freeShip) {
       setShippingMethod("standard");
     }
   };
+
+  const formatINR = (amount) =>
+    `₹${(amount * USD_TO_INR).toLocaleString("en-IN")}`;
 
   return (
     <div className="bg-gray-100 min-h-screen p-4">
@@ -113,45 +148,45 @@ function Cart() {
                       {/* Quantity */}
                       <td className="block sm:table-cell py-4 px-4 text-center">
                         <div className="flex items-center justify-center sm:justify-center">
-                          <button
+                          <Button
                             onClick={() => dispatch(decreaseQuantity(item.id))}
                             className="px-2 py-1 border rounded-l"
                           >
                             -
-                          </button>
+                          </Button>
                           <input
                             type="number"
                             readOnly
                             value={item.quantity}
                             className="w-12 text-center border-y"
                           />
-                          <button
+                          <Button
                             onClick={() => dispatch(increaseQuantity(item.id))}
                             className="px-2 py-1 border rounded-r"
                           >
                             +
-                          </button>
+                          </Button>
                         </div>
                       </td>
 
                       {/* Price */}
                       <td className="block sm:table-cell py-4 px-4 text-right">
-                        ${item.price}
+                        {formatINR(item.price)}
                       </td>
 
                       {/* Total */}
                       <td className="block sm:table-cell py-4 px-4 text-right font-bold">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatINR(item.price * item.quantity)}
                       </td>
 
                       {/* Actions */}
                       <td className="block sm:table-cell py-4 px-4 text-center">
-                        <button
+                        <Button
                           onClick={() => dispatch(removeFromCart(item.id))}
                           className="text-red-500 hover:text-red-700"
                         >
                           🗑 Remove
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -192,7 +227,7 @@ function Cart() {
                         </div>
                       </div>
                       <div className="ml-auto font-medium">
-                        ${shippingRates[method]}
+                        {formatINR(shippingRates[method])}
                       </div>
                     </label>
                   ))}
@@ -209,12 +244,12 @@ function Cart() {
                       placeholder="Enter promo code"
                       className="flex-grow border rounded-l p-2"
                     />
-                    <button
+                    <Button
                       onClick={applyPromo}
                       className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 transition"
                     >
                       Apply
-                    </button>
+                    </Button>
                   </div>
                   {promoMessage && (
                     <p
@@ -225,6 +260,29 @@ function Cart() {
                       {promoMessage}
                     </p>
                   )}
+
+                  {/* Promo Info */}
+                  <div className="mt-4 p-3 bg-gray-50 border rounded-lg text-sm text-gray-700">
+                    <h3 className="font-semibold mb-2">Available Offers</h3>
+                    <ul className="space-y-1 list-disc list-inside">
+                      <li>
+                        🛍 Order ₹399 and above – Apply <strong>SAVE10</strong>{" "}
+                        (10% OFF)
+                      </li>
+                      <li>
+                        🛍 Order ₹799 and above – Apply <strong>SAVE20</strong>{" "}
+                        (20% OFF)
+                      </li>
+                      <li>
+                        ✨ New Users – <strong>WELCOME20</strong> on orders
+                        above ₹499
+                      </li>
+                      <li>
+                        🚚 Orders above ₹999 – Apply <strong>FREESHIP</strong>{" "}
+                        (Free Shipping)
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
@@ -234,30 +292,30 @@ function Cart() {
                 <div className="space-y-3 mb-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatINR(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span>${shippingCost.toFixed(2)}</span>
+                    <span>{formatINR(shippingCost)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span>- ${discount.toFixed(2)}</span>
+                      <span>- {formatINR(discount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-gray-600">
                     <span>Tax</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>{formatINR(tax)}</span>
                   </div>
                   <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{formatINR(total)}</span>
                   </div>
                 </div>
-                <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+                <Button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
                   Proceed to Checkout
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -269,12 +327,12 @@ function Cart() {
               >
                 ⬅ Continue Shopping
               </Link>
-              <button
+              <Button
                 onClick={() => dispatch(clearCart())}
                 className="text-red-600 hover:text-red-800"
               >
                 🗑 Clear Cart
-              </button>
+              </Button>
             </div>
           </>
         )}

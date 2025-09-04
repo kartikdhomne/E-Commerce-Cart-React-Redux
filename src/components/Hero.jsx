@@ -1,12 +1,8 @@
 import Slider from "react-slick";
-import { useState } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 function Hero() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [progressKey, setProgressKey] = useState(0); // used to restart CSS animation
-
   const autoplayDuration = 3000;
 
   const settings = {
@@ -20,10 +16,6 @@ function Hero() {
     pauseOnHover: false,
     rtl: false,
     arrows: true,
-    beforeChange: (_, next) => {
-      setCurrentSlide(next);
-      setProgressKey((prev) => prev + 1); // reset progress animation
-    },
   };
 
   const slides = [
@@ -81,17 +73,6 @@ function Hero() {
           </div>
         ))}
       </Slider>
-
-      {/* Progress Bar */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-700 z-20">
-        <div
-          key={progressKey} // forces re-animation
-          className="h-full bg-white animate-progress"
-          style={{
-            animationDuration: `${autoplayDuration}ms`,
-          }}
-        />
-      </div>
     </div>
   );
 }
