@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
-import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 
 function Home() {
@@ -20,7 +19,6 @@ function Home() {
     <div className="flex flex-col items-center">
       <Hero />
 
-      {/* Products Grid */}
       <h2 className="text-3xl md:text-5xl font-bold py-12">
         Most Loved Products
       </h2>
