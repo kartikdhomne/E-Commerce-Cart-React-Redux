@@ -107,9 +107,12 @@ function Cart() {
         price: item.price * USD_TO_INR, // convert here
       }));
 
-      const { data } = await axios.post(`${API_URL}/create-checkout-session`, {
-        cartItems: itemsInINR,
-      });
+      const { data } = await axios.post(
+        `${API_BASE_URL}/create-checkout-session`,
+        {
+          cartItems: itemsInINR,
+        }
+      );
 
       window.location.href = data.url;
     } catch (err) {
