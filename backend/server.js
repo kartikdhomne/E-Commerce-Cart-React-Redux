@@ -9,19 +9,18 @@ app.use(express.json());
 
 const stripe = Stripe(process.env.STRIPE_SK_KEY);
 
-// Stripe Checkout Session route
 app.post("/create-checkout-session", async (req, res) => {
     try {
         const { cartItems } = req.body;
 
         const lineItems = cartItems.map((item) => ({
             price_data: {
-                currency: "inr", // or "usd"
+                currency: "inr",
                 product_data: {
                     name: item.title,
                     images: [item.thumbnail],
                 },
-                unit_amount: Math.round(item.price * 100), // Stripe requires paise/cents
+                unit_amount: Math.round(item.price * 100),
             },
             quantity: item.quantity,
         }));
@@ -30,8 +29,8 @@ app.post("/create-checkout-session", async (req, res) => {
             payment_method_types: ["card"],
             line_items: lineItems,
             mode: "payment",
-            success_url: "http://localhost:5173/success",
-            cancel_url: "http://localhost:5173/cancel",
+            success_url: `${process.env.CLIENT_URL}/success`,
+            cancel_url: `${process.env.CLIENT_URL}/cancel`,
         });
 
         res.json({ url: session.url });
@@ -41,4 +40,5 @@ app.post("/create-checkout-session", async (req, res) => {
     }
 });
 
-app.listen(5000, () => console.log("Server running on http://localhost:5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

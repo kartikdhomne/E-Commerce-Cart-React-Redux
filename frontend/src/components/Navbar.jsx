@@ -110,7 +110,12 @@ function Navbar() {
         <SignedIn>
           <UserButton />
         </SignedIn>
-        <Link to="/cart">🛒 Cart ({cartCount})</Link>
+        <Link to="/cart">
+          <sup className="bg-red-600 text-white rounded-full py-1 px-2 w-4 h-4 relative -right-3 -top-3">
+            {cartCount}
+          </sup>
+          🛒 Cart
+        </Link>
       </div>
     </nav>
   );

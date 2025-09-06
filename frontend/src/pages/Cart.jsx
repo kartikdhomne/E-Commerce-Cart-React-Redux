@@ -108,7 +108,7 @@ function Cart() {
       }));
 
       const { data } = await axios.post(
-        "http://localhost:5000/create-checkout-session",
+        `${API_URL}/create-checkout-session`,
         { cartItems: itemsInINR }
       );
 
@@ -137,15 +137,15 @@ function Cart() {
             <p className="text-xl text-gray-500">Your cart is empty</p>
             <Link
               to="/"
-              className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="inline-block mt-4 text-white px-6 py-2 rounded-lg cursor-pointer transition"
             >
-              Continue Shopping
+              <Button>Continue Shopping</Button>
             </Link>
           </div>
         ) : (
           <>
             {/* Responsive Table */}
-            <div className="overflow-x-auto bg-white rounded-lg shadow-md mb-6">
+            <div className="overflow-x-auto bg-white rounded-lg shadow-md mb-6 md:block hidden">
               <table className="w-full text-sm">
                 <thead className="hidden sm:table-header-group bg-gray-50 text-gray-700">
                   <tr>
@@ -168,7 +168,7 @@ function Cart() {
                           <img
                             src={item.thumbnail}
                             alt={item.title}
-                            className="w-16 h-16 object-cover rounded"
+                            className="w-24 h-24 object-cover rounded"
                           />
                           <div>
                             <h3 className="font-medium">{item.title}</h3>
@@ -181,7 +181,7 @@ function Cart() {
                         <div className="flex items-center justify-center sm:justify-center">
                           <Button
                             onClick={() => dispatch(decreaseQuantity(item.id))}
-                            className="w-12 px-2 py-1 border rounded-full"
+                            className="w-12 px-2 py-1 border rounded-full cursor-pointer"
                           >
                             -
                           </Button>
@@ -193,7 +193,7 @@ function Cart() {
                           />
                           <Button
                             onClick={() => dispatch(increaseQuantity(item.id))}
-                            className="w-12 px-2 py-1 border rounded-full"
+                            className="w-12 px-2 py-1 border rounded-full cursor-pointer"
                           >
                             +
                           </Button>
@@ -223,6 +223,61 @@ function Cart() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* mobile view  */}
+            <div className="block md:hidden overflow-x-auto bg-white rounded-lg shadow-md mb-6 p-6">
+              {cartItems.map((item) => (
+                <div className="flex items-center gap-4 flex-col border-1 border-black rounded-lg mb-6 py-6">
+                  <div className="flex items-center flex-col">
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="w-28 h-28 object-cover rounded"
+                    />
+                    <h2 className="font-medium text-2xl mt-2">{item.title}</h2>
+                  </div>
+                  <div className="flex items-center gap-8">
+                    <Button
+                      onClick={() => dispatch(decreaseQuantity(item.id))}
+                      className="w-12 py-1 border cursor-pointer"
+                    >
+                      -
+                    </Button>
+                    <input
+                      type="number"
+                      readOnly
+                      value={item.quantity}
+                      className="text-center text-xl w-20 border-1 border-black rounded-sm"
+                    />
+                    <Button
+                      onClick={() => dispatch(increaseQuantity(item.id))}
+                      className="w-12 py-1 border cursor-pointer"
+                    >
+                      +
+                    </Button>
+                  </div>
+                  <div className="flex gap-16">
+                    <div>
+                      <p className="font-bold">Item Price</p>
+                      {formatINR(item.price)}
+                    </div>
+                    <div>
+                      <p className="font-bold">Item Total</p>
+                      {formatINR(item.price * item.quantity)}
+                    </div>
+                  </div>
+
+                  <div className="mx-auto">
+                    <Button
+                      onClick={() => dispatch(removeFromCart(item.id))}
+                      className="text-white cursor-pointer w-64"
+                    >
+                      🗑 Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Shipping + Promo + Summary */}
@@ -340,7 +395,7 @@ function Cart() {
                     <span>{formatINR(tax)}</span>
                   </div>
                   <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
-                    <span>Total</span>
+                    <span>Grand Total</span>
                     <span>{formatINR(total)}</span>
                   </div>
                 </div>

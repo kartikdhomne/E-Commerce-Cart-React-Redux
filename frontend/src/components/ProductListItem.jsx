@@ -5,9 +5,9 @@ import AddToCartButton from "./AddToCartButton";
 
 function ProductListItem({ product }) {
   return (
-    <div className="flex border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition">
+    <div className="flex border flex-col md:flex-row rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition">
       {/* Left Image */}
-      <div className="w-40 flex-shrink-0 flex items-center justify-center">
+      <div className="md:w-40 flex-shrink-0 flex items-center justify-center">
         <img
           src={product.thumbnail}
           alt={product.title}
@@ -42,24 +42,26 @@ function ProductListItem({ product }) {
         </p>
 
         {/* Warranty & Shipping */}
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 mt-2 md:mt-1">
           {product.warrantyInformation} • {product.shippingInformation}
         </p>
       </div>
 
       {/* Price Section */}
-      <div className="w-48 text-right flex flex-col justify-center">
-        <div className="text-2xl font-bold text-gray-900">
-          ₹{Math.round(product.price * 83).toLocaleString("en-IN")}
-        </div>
-        {product.discountPercentage && (
-          <div className="text-sm text-green-600">
-            {product.discountPercentage}% off
+      <div className="md:w-48 text-left flex flex-col justify-center px-4 md:px-0">
+        <div className="flex gap-2 items-center flex-row md:flex-col py-2 md:py-0">
+          <div className="text-2xl font-bold text-gray-900">
+            ₹{Math.round(product.price * 83).toLocaleString("en-IN")}
           </div>
-        )}
-        <p className="text-xs text-gray-500 mt-1">
-          {product.availabilityStatus}
-        </p>
+          {product.discountPercentage && (
+            <div className="text-sm text-green-600">
+              {product.discountPercentage}% off
+            </div>
+          )}
+          <div className="text-xs text-gray-500 mt-1">
+            {product.availabilityStatus}
+          </div>
+        </div>
         <AddToCartButton product={product} />
       </div>
     </div>

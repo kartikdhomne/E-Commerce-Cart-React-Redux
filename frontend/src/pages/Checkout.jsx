@@ -24,7 +24,7 @@ function Checkout() {
     try {
       // 1. Ask backend to create PaymentIntent
       const { data } = await axios.post(
-        "http://localhost:5000/create-payment-intent",
+        `${API_URL}/create-payment-intent`,
         { amount }
       );
 

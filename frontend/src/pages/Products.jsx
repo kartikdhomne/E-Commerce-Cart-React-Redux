@@ -38,6 +38,7 @@ function Products() {
         const results = await Promise.all(
           API_ENDPOINTS.map((url) => fetch(url).then((res) => res.json()))
         );
+        console.log(results, "res");
         const merged = results.flatMap((res) => res.products);
         setProducts(merged);
         setFiltered(merged);
@@ -90,9 +91,9 @@ function Products() {
   return (
     <div>
       <Navbar />
-      <div className="flex pt-24 px-4 max-w-7xl mx-auto gap-6">
+      <div className="flex flex-col md:flex-row pt-24 px-4 max-w-7xl mx-auto gap-6">
         {/* Sidebar */}
-        <aside className="w-64 bg-white shadow rounded-lg p-4 hidden md:block">
+        <aside className="md:w-64 bg-white shadow rounded-lg p-4">
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
 
           {/* Category */}
@@ -106,7 +107,7 @@ function Products() {
               <option value="all">All</option>
               {[...new Set(products.map((p) => p.category))].map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat}
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </option>
               ))}
             </select>
@@ -156,7 +157,7 @@ function Products() {
         {/* Product List */}
         <main className="flex-1">
           <h2 className="text-2xl font-bold mb-4">
-            Products ({filtered.length})
+            {filtered.length} products found
           </h2>
           {loading ? (
             <div className="p-10 text-center">Loading products...</div>
