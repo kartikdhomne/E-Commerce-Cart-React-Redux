@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
@@ -12,7 +12,7 @@ function Navbar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
-
+  const location = useLocation();
   const navigate = useNavigate();
   const cartCount = useSelector((state) => state.cart.cartItems.length);
 
@@ -96,18 +96,18 @@ function Navbar() {
       <div className="flex gap-6 items-center">
         <Link to="/">Home</Link>
         <Link to="/products">Explore Products</Link>
-        {/* Show when user is signed out */}
         <SignedOut>
-          {/* Clerk’s ready SignIn popup */}
-          <SignInButton mode="modal">
+          <SignInButton
+            mode="modal"
+            redirectUrl={location.pathname} // send them back where they were
+          >
             <button className="px-4 py-2 bg-blue-600 text-white rounded">
               Login
             </button>
           </SignInButton>
         </SignedOut>
-
         {/* Show when user is signed in */}
-        <SignedIn>
+        <SignedIn redirectUrl="/cart">
           <UserButton />
         </SignedIn>
         <Link to="/cart">

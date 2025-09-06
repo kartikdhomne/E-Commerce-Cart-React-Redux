@@ -9,6 +9,8 @@ app.use(express.json());
 
 const stripe = Stripe(process.env.STRIPE_SK_KEY);
 
+const API_URL = process.env.API_URL;
+
 app.post("/create-checkout-session", async (req, res) => {
     try {
         const { cartItems } = req.body;
@@ -29,8 +31,8 @@ app.post("/create-checkout-session", async (req, res) => {
             payment_method_types: ["card"],
             line_items: lineItems,
             mode: "payment",
-            success_url: `${process.env.CLIENT_URL}/success`,
-            cancel_url: `${process.env.CLIENT_URL}/cancel`,
+            success_url: `${process.env.API_URL}/success`,
+            cancel_url: `${process.env.API_URL}/cancel`,
         });
 
         res.json({ url: session.url });
