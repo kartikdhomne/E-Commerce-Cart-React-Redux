@@ -10,7 +10,7 @@ function CartNotification({ show, product, onClose }) {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: "100%", opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed flex justify-between top-20 right-4 bg-black  rounded-lg p-4 w-120 z-50 border"
+          className="fixed flex justify-between top-20 right-4 bg-black  rounded-lg p-4 w-80 lg:w-120 z-50 border"
         >
           <div className="flex gap-3 items-center">
             <img

@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import AddToCartButton from "./AddToCartButton";
 
@@ -19,10 +18,15 @@ function ProductCard({ product }) {
           className="h-48 w-48 object-cover"
         />
         <h3 className="text-lg font-semibold text-center">{product.title}</h3>
-        <p className="text-md text-gray-700">
+        <span className="text-xl text-gray-700 font-bold">
           ₹{(product.price * USD_TO_INR).toLocaleString("en-IN")}
-        </p>
-
+        </span>
+        <div className="flex">
+          <span className="text-sm p-1 text-white bg-green-500 rounded-sm">
+            {product.rating}⭐
+          </span>
+          <span className="ml-2">Ratings</span>
+        </div>
         {/* ✅ Reusable Button */}
         <AddToCartButton product={product} />
       </div>

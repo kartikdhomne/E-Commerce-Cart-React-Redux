@@ -1,8 +1,8 @@
 // pages/Products.jsx
 import { useEffect, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
-import ProductListItem from "../components/ProductListItem";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import PaginatedCards from "../components/PaginatedCards";
 
 const API_ENDPOINTS = [
   "https://dummyjson.com/products/category/smartphones",
@@ -38,7 +38,6 @@ function Products() {
         const results = await Promise.all(
           API_ENDPOINTS.map((url) => fetch(url).then((res) => res.json()))
         );
-        console.log(results, "res");
         const merged = results.flatMap((res) => res.products);
         setProducts(merged);
         setFiltered(merged);
@@ -166,15 +165,7 @@ function Products() {
               No products found
             </div>
           ) : (
-            <ul className="space-y-4">
-              {filtered.map((product) => (
-                <li key={product.id}>
-                  <Link to={`/product/${product.id}`}>
-                    <ProductListItem product={product} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <PaginatedCards filtered={filtered} />
           )}
         </main>
       </div>

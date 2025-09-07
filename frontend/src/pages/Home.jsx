@@ -12,7 +12,8 @@ function Home() {
     fetch("https://dummyjson.com/products")
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data.products);
+        const filtered = data.products.filter((p) => p.rating > 4.1);
+        setProducts(filtered);
         setLoading(false);
       });
   }, []);

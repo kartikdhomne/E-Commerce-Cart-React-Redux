@@ -73,7 +73,7 @@ function Hero() {
     <div className="w-full overflow-hidden relative">
       <Slider {...settings}>
         {slides.map((slide, index) => (
-          <div key={index} className="relative w-full mt-20">
+          <div key={index} className="relative w-full mt-20 md:mt-12">
             {/* Desktop Image */}
             <div className="md:block hidden">
               <img

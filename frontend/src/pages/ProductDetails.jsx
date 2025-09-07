@@ -37,10 +37,12 @@ function ProductDetails() {
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-bold">{product.title}</h1>
           <p className="text-gray-600">{product.description}</p>
-          <p className="text-2xl text-green-700 font-semibold">
+          <p className="text-2xl text-black font-semibold">
             ₹{(product.price * USD_TO_INR).toLocaleString("en-IN")}
           </p>
-          <p className="text-sm text-gray-500">Rating: {product.rating}</p>
+          <p className="text-sm text-gray-500">
+            Rating: <span className="bg-green-500 p-1 text-white rounded-md">⭐{product.rating}</span>
+          </p>
 
           {/* ✅ Reusable Button */}
           <AddToCartButton product={product} />

@@ -1,28 +1,55 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
 import {
   SignedIn,
   SignedOut,
   SignInButton,
   UserButton,
 } from "@clerk/clerk-react";
+import { Button } from "./ui/button";
+import { useState, useEffect } from "react";
+
+const API_ENDPOINTS = [
+  "https://dummyjson.com/products/category/smartphones",
+  "https://dummyjson.com/products/category/laptops",
+  "https://dummyjson.com/products/category/fragrances",
+  "https://dummyjson.com/products/category/skincare",
+  "https://dummyjson.com/products/category/home-decoration",
+  "https://dummyjson.com/products/category/furniture",
+  "https://dummyjson.com/products/category/mens-shirts",
+  "https://dummyjson.com/products/category/womens-dresses",
+];
 
 function Navbar() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
-  const location = useLocation();
-  const navigate = useNavigate();
   const cartCount = useSelector((state) => state.cart.cartItems.length);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [allProducts, setAllProducts] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
 
-  // Fetch all products once for suggestions
+  // ✅ Fetch products from multiple category endpoints
   useEffect(() => {
-    fetch("https://dummyjson.com/products?limit=200")
-      .then((res) => res.json())
-      .then((data) => setAllProducts(data.products || []))
-      .catch((err) => console.error("Failed to fetch products:", err));
+    const fetchProducts = async () => {
+      try {
+        const allData = [];
+        for (const url of API_ENDPOINTS) {
+          const res = await fetch(url);
+          const data = await res.json();
+          allData.push(...(data.products || []));
+        }
+        setAllProducts(allData);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const handleSearch = (e) => {
@@ -35,88 +62,190 @@ function Navbar() {
 
   const handleInput = (value) => {
     setSearchTerm(value);
+
     if (value.trim() === "") {
       setSuggestions([]);
     } else {
       const matches = allProducts.filter((p) =>
         p.title.toLowerCase().includes(value.toLowerCase())
       );
-      setSuggestions(matches.slice(0, 8)); // show max 8
+      // ❌ old: setSuggestions(matches.slice(0, 8));
+      // ✅ new: show all matches
+      setSuggestions(matches);
     }
   };
 
+  const handleSelect = (title) => {
+    navigate(`/products?q=${title}`);
+    setSearchTerm(title);
+    setSuggestions([]);
+  };
+
   return (
-    <nav className="fixed z-10 w-full flex items-center justify-between bg-white text-black px-6 py-3 shadow-md">
-      {/* Logo */}
-      <Link to="/" className="flex items-center gap-2">
-        <img src="/logo.webp" alt="Logo" className="" />
-      </Link>
+    <Disclosure as="nav" className="bg-white shadow-md fixed w-full z-10">
+      {({ open }) => (
+        <>
+          {/* Navbar main row */}
+          <div className="mx-auto  px-4 sm:px-6 lg:px-8">
+            <div className="flex h-16 justify-between items-center lg:gap-40">
+              {/* Left: Logo + (mobile cart/profile) */}
+              <div className="flex items-center gap-3">
+                <Link to="/">
+                  <img src="/logo.webp" alt="Logo" className="h-8 w-auto" />
+                </Link>
 
-      {/* Search */}
-      <form
-        onSubmit={handleSearch}
-        className="flex flex-1 mx-6 max-w-xl relative"
-      >
-        <div className="relative w-full">
-          <input
-            type="text"
-            placeholder="Search for products, brands and more"
-            value={searchTerm}
-            onChange={(e) => handleInput(e.target.value)}
-            className="w-full px-4 py-2 pr-10 rounded-md text-black focus:outline-none bg-[#f0f5ff]"
-          />
-          <button
-            type="submit"
-            className="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 text-xl"
-          >
-            🔍
-          </button>
+                {/* Mobile Cart + Profile */}
+                <div className="flex sm:hidden items-center gap-2">
+                  <Link to="/cart" className="relative flex items-center">
+                    🛒
+                    {cartCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-2">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <Button className="bg-black text-white px-2 py-1 text-sm">
+                        Login
+                      </Button>
+                    </SignInButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <UserButton />
+                  </SignedIn>
+                </div>
+              </div>
 
-          {/* Suggestions dropdown */}
-          {suggestions.length > 0 && (
-            <ul className="absolute top-full left-0 w-full bg-white border rounded-md shadow-md mt-1 max-h-60 overflow-y-auto z-50">
-              {suggestions.map((item) => (
-                <li
-                  key={item.id}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    navigate(`/products?q=${item.title}`);
-                    setSearchTerm(item.title);
-                    setSuggestions([]);
-                  }}
+              {/* Desktop Nav + Search */}
+              <div className="hidden sm:flex flex-1 items-center justify-center gap-6">
+                {/* Search Bar */}
+                <form
+                  onSubmit={handleSearch}
+                  className="relative w-full sm:w-140"
                 >
-                  {item.title}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </form>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => handleInput(e.target.value)}
+                    className="w-full px-4 py-2 rounded-md bg-gray-100 focus:outline-none"
+                  />
+                  {suggestions.length > 0 && (
+                    <ul className="absolute top-full left-0 w-full bg-white border rounded-md shadow-md mt-1 max-h-60 overflow-y-auto z-50">
+                      {suggestions.map((item) => (
+                        <li
+                          key={item.id}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleSelect(item.title)}
+                        >
+                          {item.title}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </form>
+              </div>
 
-      {/* Links */}
-      <div className="flex gap-6 items-center">
-        <Link to="/">Home</Link>
-        <Link to="/products">Explore Products</Link>
-        <SignedOut>
-          <SignInButton mode="modal" forceRedirectUrl="/cart">
-            <Button className="px-4 py-2 cursor-pointer bg-black text-white rounded">
-              Login
-            </Button>
-          </SignInButton>
-        </SignedOut>
+              <div className="flex gap-8">
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `text-lg font-medium ${
+                      isActive
+                        ? "text-white bg-black py-1 px-2 rounded-sm"
+                        : "text-black"
+                    }`
+                  }
+                >
+                  Home
+                </NavLink>
 
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+                <NavLink
+                  to="/products"
+                  className={({ isActive }) =>
+                    `text-lg font-medium ${
+                      isActive
+                        ? "text-white bg-black py-1 px-2 rounded-sm"
+                        : "text-black"
+                    }`
+                  }
+                >
+                  Explore Products
+                </NavLink>
+              </div>
 
-        <Link to="/cart">
-          <sup className="bg-red-600 text-white rounded-full py-1 px-2 w-4 h-4 relative -right-3 -top-3">
-            {cartCount}
-          </sup>
-          🛒 Cart
-        </Link>
-      </div>
-    </nav>
+              {/* Desktop Cart + Profile */}
+              <div className="hidden sm:flex items-center gap-8">
+                <Link to="/cart" className="relative flex items-center">
+                  🛒
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 right-2 bg-red-600 text-white text-sm rounded-full px-2">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button className="bg-black text-white px-4 py-2 text-sm">
+                      Login
+                    </Button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton />
+                </SignedIn>
+              </div>
+
+              {/* Mobile Hamburger */}
+              <div className="sm:hidden">
+                <DisclosureButton className="p-2 text-gray-600">
+                  {open ? (
+                    <XMarkIcon className="h-6 w-6" />
+                  ) : (
+                    <Bars3Icon className="h-6 w-6" />
+                  )}
+                </DisclosureButton>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          <DisclosurePanel className="sm:hidden bg-white px-4 pt-2 pb-3 space-y-2">
+            {/* Search bar mobile */}
+            <form onSubmit={handleSearch} className="relative w-full">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => handleInput(e.target.value)}
+                className="w-full px-4 py-2 rounded-md bg-gray-100 focus:outline-none"
+              />
+              {suggestions.length > 0 && (
+                <ul className="absolute top-full left-0 w-full bg-white border rounded-md shadow-md mt-1 max-h-60 overflow-y-auto z-50">
+                  {suggestions.map((item) => (
+                    <li
+                      key={item.id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSelect(item.title)}
+                    >
+                      {item.title}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </form>
+
+            <NavLink to="/" className="block py-2">
+              Home
+            </NavLink>
+            <NavLink to="/products" className="block py-2">
+              Explore Products
+            </NavLink>
+          </DisclosurePanel>
+        </>
+      )}
+    </Disclosure>
   );
 }
 
