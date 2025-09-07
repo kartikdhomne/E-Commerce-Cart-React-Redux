@@ -22,6 +22,8 @@ function Cart() {
   const { isSignedIn } = useUser();
   const [showLogin, setShowLogin] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   // Conversion rate USD → INR
   const USD_TO_INR = 88;
 

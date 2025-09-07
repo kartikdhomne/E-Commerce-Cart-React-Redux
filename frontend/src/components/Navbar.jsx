@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 import {
   SignedIn,
   SignedOut,
@@ -97,19 +98,17 @@ function Navbar() {
         <Link to="/">Home</Link>
         <Link to="/products">Explore Products</Link>
         <SignedOut>
-          <SignInButton
-            mode="modal"
-            redirectUrl={location.pathname} // send them back where they were
-          >
-            <button className="px-4 py-2 bg-blue-600 text-white rounded">
+          <SignInButton mode="modal" forceRedirectUrl="/cart">
+            <Button className="px-4 py-2 cursor-pointer bg-black text-white rounded">
               Login
-            </button>
+            </Button>
           </SignInButton>
         </SignedOut>
-        {/* Show when user is signed in */}
-        <SignedIn redirectUrl="/cart">
+
+        <SignedIn>
           <UserButton />
         </SignedIn>
+
         <Link to="/cart">
           <sup className="bg-red-600 text-white rounded-full py-1 px-2 w-4 h-4 relative -right-3 -top-3">
             {cartCount}
