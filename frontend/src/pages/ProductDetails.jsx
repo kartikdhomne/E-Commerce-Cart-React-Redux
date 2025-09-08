@@ -15,7 +15,8 @@ function ProductDetails() {
       fetch(`https://dummyjson.com/products/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          setProduct(data);
+          // ✅ Convert price to INR
+          setProduct({ ...data, price: data.price * USD_TO_INR });
           setLoading(false);
         });
     }
@@ -38,10 +39,13 @@ function ProductDetails() {
           <h1 className="text-3xl font-bold">{product.title}</h1>
           <p className="text-gray-600">{product.description}</p>
           <p className="text-2xl text-black font-semibold">
-            ₹{(product.price * USD_TO_INR).toLocaleString("en-IN")}
+            ₹{product.price.toLocaleString("en-IN")}
           </p>
           <p className="text-sm text-gray-500">
-            Rating: <span className="bg-green-500 p-1 text-white rounded-md">⭐{product.rating}</span>
+            Rating:
+            <span className="ml-1 bg-green-500 p-1 text-white rounded-md">
+              ⭐{product.rating}
+            </span>
           </p>
 
           {/* ✅ Reusable Button */}

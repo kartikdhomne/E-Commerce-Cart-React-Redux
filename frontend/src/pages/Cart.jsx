@@ -19,8 +19,9 @@ function Cart() {
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState("");
   const [discount, setDiscount] = useState(0);
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const [showLogin, setShowLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -98,27 +99,57 @@ function Cart() {
 
   const handleCheckout = async () => {
     if (!isSignedIn) {
-      // If not logged in → show login popup or redirect
       setShowLogin(true);
       return;
     }
     try {
+      const userId = user?.id;
+      const storageKey = `orders_${userId}`;
+      setLoading(true);
+      // Shipping days based on method
+      const shippingDays = {
+        standard: 7,
+        express: 3,
+        overnight: 1,
+      };
+
       // Convert prices to INR (Stripe requires smallest unit: paise)
       const itemsInINR = cartItems.map((item) => ({
         ...item,
-        price: item.price * USD_TO_INR, // convert here
+        price: Math.round(item.price * USD_TO_INR * 100), // *100 → paise
       }));
 
+      // 1️⃣ Call backend to create Stripe checkout session
       const { data } = await axios.post(
         `${API_BASE_URL}/create-checkout-session`,
-        {
-          cartItems: itemsInINR,
-        }
+        { cartItems: itemsInINR }
       );
 
+      // 2️⃣ Prepare local order (store before redirecting)
+      const newOrder = {
+        id: Date.now(),
+        createdAt: new Date().toISOString(),
+        items: cartItems,
+        shippingMethod,
+        deliveryExpected: new Date(
+          Date.now() + shippingDays[shippingMethod] * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        amount: total * USD_TO_INR,
+        status: "Pending Payment", // update later on success webhook
+      };
+
+      const existingOrders = JSON.parse(localStorage.getItem(storageKey)) || [];
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify([...existingOrders, newOrder])
+      );
+
+      // 3️⃣ Redirect to Stripe
       window.location.href = data.url;
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -405,9 +436,35 @@ function Cart() {
                 </div>
                 <Button
                   onClick={handleCheckout}
-                  className="w-full cursor-pointer text-white py-3 rounded-lg font-medium transition"
+                  disabled={loading}
+                  className={`w-full cursor-pointer text-white py-3 rounded-lg font-medium transition flex items-center justify-center ${
+                    loading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Proceed to Checkout
+                  {loading ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    "Proceed to Payment"
+                  )}
                 </Button>
 
                 {/* If not signed in → show Clerk login */}

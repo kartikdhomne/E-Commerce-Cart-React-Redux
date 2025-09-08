@@ -1,16 +1,42 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { clearCart } from "../features/cart/cartSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { useUser } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
+import { clearCart } from "../features/cart/cartSlice";
 import { Button } from "../components/ui/button";
 
 function Success() {
+  const cartItems = useSelector((state) => state.cart.cartItems);
   const dispatch = useDispatch();
+  const { user } = useUser();
 
   useEffect(() => {
-    // Empty the cart once order is successful
-    dispatch(clearCart());
-  }, [dispatch]);
+    if (cartItems.length > 0 && user) {
+      const shippingDays = { standard: 7, express: 3, overnight: 1 };
+      const method = "standard"; // replace later with selected option
+
+      const newOrder = {
+        id: Date.now(),
+        createdAt: new Date().toISOString(),
+        status: "Done",
+        shippingMethod: method,
+        deliveryExpected: new Date(
+          Date.now() + shippingDays[method] * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        amount: cartItems.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        ),
+        items: [...cartItems],
+      };
+
+      const key = `orders_${user.id}`;
+      const existingOrders = JSON.parse(localStorage.getItem(key)) || [];
+      localStorage.setItem(key, JSON.stringify([newOrder, ...existingOrders]));
+
+      dispatch(clearCart());
+    }
+  }, [cartItems, dispatch, user]);
 
   return (
     <div className="px-8 text-center flex flex-col items-center justify-center min-h-screen">

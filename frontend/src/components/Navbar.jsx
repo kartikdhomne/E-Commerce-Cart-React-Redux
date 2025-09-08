@@ -173,6 +173,19 @@ function Navbar() {
                 >
                   Explore Products
                 </NavLink>
+
+                <NavLink
+                  to="/my-orders"
+                  className={({ isActive }) =>
+                    `text-lg font-medium ${
+                      isActive
+                        ? "text-white bg-black py-1 px-2 rounded-sm"
+                        : "text-black"
+                    }`
+                  }
+                >
+                  My Orders
+                </NavLink>
               </div>
 
               {/* Desktop Cart + Profile */}
